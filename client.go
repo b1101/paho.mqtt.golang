@@ -89,28 +89,37 @@ type client struct {
 // in the provided ClientOptions. The client must have the Connect method called
 // on it before it may be used. This is to make sure resources (such as a net
 // connection) are created before the application is actually ready.
-func NewClient(o *ClientOptions) Client {
-	c := &client{}
-	c.options = *o
+func NewClient(o *ClientOptions) (c *Client) {
+	opts := *o
 
-	if c.options.Store == nil {
-		c.options.Store = NewMemoryStore()
-	}
-	switch c.options.ProtocolVersion {
-	case 3, 4:
-		c.options.protocolVersionExplicit = true
+	switch {
+	case opts.Store == nil:
+		opts.Store = NewMemoryStore()
+		fallthrough
+	case !opts.AutoReconnect:
+		opts.MessageChannelDepth = 0
+		fallthrough
 	default:
-		c.options.ProtocolVersion = 4
-		c.options.protocolVersionExplicit = false
+
+		switch opts.ProtocolVersion {
+		case 3, 4:
+			opts.protocolVersionExplicit = true
+		default:
+			opts.ProtocolVersion = 4
+			opts.protocolVersionExplicit = false
+		}
 	}
-	c.persist = c.options.Store
-	c.status = disconnected
-	c.messageIds = messageIds{index: make(map[uint16]Token)}
+
+	c = &Client{
+		options:    opts,
+		persist:    c.options.Store,
+		status:     disconnected,
+		messageIds: messageIds{index: make(map[uint16]Token)},
+	}
+
 	c.msgRouter, c.stopRouter = newRouter()
 	c.msgRouter.setDefaultHandler(c.options.DefaultPublishHander)
-	if !c.options.AutoReconnect {
-		c.options.MessageChannelDepth = 0
-	}
+
 	return c
 }
 
