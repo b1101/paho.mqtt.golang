@@ -74,7 +74,7 @@ func openConnection(uri *url.URL, tlsc *tls.Config, timeout time.Duration) (net.
 
 // actually read incoming messages off the wire
 // send Message object into ibound channel
-func incoming(c *client) {
+func incoming(c *Client) {
 	var err error
 	var cp packets.ControlPacket
 
@@ -105,7 +105,7 @@ func incoming(c *client) {
 
 // receive a Message object on obound, and then
 // actually send outgoing message to the wire
-func outgoing(c *client) {
+func outgoing(c *Client) {
 	defer c.workers.Done()
 	DEBUG.Println(NET, "outgoing started")
 
@@ -167,7 +167,7 @@ func outgoing(c *client) {
 // store messages if necessary
 // send replies on obound
 // delete messages from store if necessary
-func alllogic(c *client) {
+func alllogic(c *Client) {
 
 	DEBUG.Println(NET, "logic started")
 

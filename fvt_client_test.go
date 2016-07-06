@@ -151,7 +151,7 @@ func Test_Subscribe(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("Subscribe_rx")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 	}
@@ -182,16 +182,16 @@ func Test_Will(t *testing.T) {
 	sops := NewClientOptions().AddBroker(FVTTCP)
 	sops.SetClientID("will-giver")
 	sops.SetWill("/wills", "good-byte!", 0, false)
-	sops.SetConnectionLostHandler(func(client Client, err error) {
+	sops.SetConnectionLostHandler(func(client *Client, err error) {
 		fmt.Println("OnConnectionLost!")
 	})
 	sops.SetAutoReconnect(false)
-	c := NewClient(sops).(*client)
+	c := NewClient(sops)
 
 	wops := NewClientOptions()
 	wops.AddBroker(FVTTCP)
 	wops.SetClientID("will-subscriber")
-	wops.SetDefaultPublishHandler(func(client Client, msg Message) {
+	wops.SetDefaultPublishHandler(func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		willmsgc <- string(msg.Payload())
@@ -225,17 +225,17 @@ func Test_CleanSession(t *testing.T) {
 
 	sops := NewClientOptions().AddBroker(FVTTCP)
 	sops.SetClientID("clsn-sender")
-	sops.SetConnectionLostHandler(func(client Client, err error) {
+	sops.SetConnectionLostHandler(func(client *Client, err error) {
 		fmt.Println("OnConnectionLost!")
 	})
 	sops.SetAutoReconnect(false)
-	c := NewClient(sops).(*client)
+	c := NewClient(sops)
 
 	wops := NewClientOptions()
 	wops.AddBroker(FVTTCP)
 	wops.SetClientID("clsn-tester")
 	wops.SetCleanSession(false)
-	wops.SetDefaultPublishHandler(func(client Client, msg Message) {
+	wops.SetDefaultPublishHandler(func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		clsnc <- string(msg.Payload())
@@ -302,14 +302,14 @@ func Test_Binary_Will(t *testing.T) {
 	sops := NewClientOptions().AddBroker(FVTTCP)
 	sops.SetClientID("will-giver")
 	sops.SetBinaryWill("/wills", will, 0, false)
-	sops.SetConnectionLostHandler(func(client Client, err error) {
+	sops.SetConnectionLostHandler(func(client *Client, err error) {
 	})
 	sops.SetAutoReconnect(false)
-	c := NewClient(sops).(*client)
+	c := NewClient(sops)
 
 	wops := NewClientOptions().AddBroker(FVTTCP)
 	wops.SetClientID("will-subscriber")
-	wops.SetDefaultPublishHandler(func(client Client, msg Message) {
+	wops.SetDefaultPublishHandler(func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %v\n", msg.Payload())
 		willmsgc <- msg.Payload()
@@ -368,7 +368,7 @@ func Test_p0s0(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p0s0-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -415,7 +415,7 @@ func Test_p0s1(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p0s1-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -461,7 +461,7 @@ func Test_p0s2(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p0s2-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -508,7 +508,7 @@ func Test_p1s0(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p1s0-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -555,7 +555,7 @@ func Test_p1s1(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p1s1-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -601,7 +601,7 @@ func Test_p1s2(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p1s2-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -648,7 +648,7 @@ func Test_p2s0(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p2s0-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -693,7 +693,7 @@ func Test_p2s1(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p2s1-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -740,7 +740,7 @@ func Test_p2s2(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("p2s2-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		choke <- true
@@ -785,7 +785,7 @@ func Test_PublishMessage(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("pubmsg-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		if string(msg.Payload()) != "pubmsg payload" {
@@ -834,7 +834,7 @@ func Test_PublishEmptyMessage(t *testing.T) {
 	sops := NewClientOptions()
 	sops.AddBroker(FVTTCP)
 	sops.SetClientID("pubmsgempty-sub")
-	var f MessageHandler = func(client Client, msg Message) {
+	var f MessageHandler = func(client *Client, msg Message) {
 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		fmt.Printf("MSG: %s\n", msg.Payload())
 		if string(msg.Payload()) != "" {
@@ -884,7 +884,7 @@ func Test_PublishEmptyMessage(t *testing.T) {
 // 	sops.SetClientID("cleanstore-sub")
 // 	sops.SetCleanSession(false)
 // 	sops.SetStore(NewFileStore(store + "/s"))
-// 	var f MessageHandler = func(client Client, msg Message) {
+// 	var f MessageHandler = func(client *Client, msg Message) {
 // 		fmt.Printf("TOPIC: %s\n", msg.Topic())
 // 		fmt.Printf("MSG: %s\n", msg.Payload())
 // 		// Close the connection after receiving
@@ -959,7 +959,7 @@ func Test_ping1_idle5(t *testing.T) {
 	ops := NewClientOptions()
 	ops.AddBroker(FVTTCP)
 	ops.SetClientID("p3i10")
-	ops.SetConnectionLostHandler(func(c Client, err error) {
+	ops.SetConnectionLostHandler(func(c *Client, err error) {
 		t.Fatalf("Connection-lost handler was called: %s", err)
 	})
 	ops.SetKeepAlive(2 * time.Second)
@@ -978,7 +978,7 @@ func Test_autoreconnect(t *testing.T) {
 	ops.AddBroker(FVTTCP)
 	ops.SetClientID("auto_reconnect")
 	ops.SetAutoReconnect(true)
-	ops.SetOnConnectHandler(func(c Client) {
+	ops.SetOnConnectHandler(func(c *Client) {
 		t.Log("Connected")
 	})
 	ops.SetKeepAlive(2 * time.Second)
@@ -992,7 +992,7 @@ func Test_autoreconnect(t *testing.T) {
 	time.Sleep(5 * time.Second)
 
 	fmt.Println("Breaking connection")
-	c.(*client).internalConnLost(fmt.Errorf("Autoreconnect test"))
+	c.internalConnLost(fmt.Errorf("Autoreconnect test"))
 
 	time.Sleep(5 * time.Second)
 	if !c.IsConnected() {

@@ -20,7 +20,7 @@ import (
 	"github.com/eclipse/paho.mqtt.golang/packets"
 )
 
-func keepalive(c *client) {
+func keepalive(c *Client) {
 	DEBUG.Println(PNG, "keepalive starting")
 
 	for {

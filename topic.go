@@ -49,6 +49,33 @@ var ErrInvalidTopicMultilevel = errors.New("Invalid Topic; multi-level wildcard 
 // - A TopicFilter with a # will match the absense of a level
 //     Example:  a subscription to "foo/#" will match messages published to "foo".
 
+type Topic []string
+
+func ParseTopic(rawtopic string) (t Topic, err error) {
+	if err = validateTopic(rawtopic); err != nil {
+		return
+	}
+	return strings.Split(rawtopic, "/"), nil
+}
+
+func NewTopic(levels ...string) (t Topic) {
+	return levels
+}
+
+func (t Topic) String() string {
+	return strings.Join(t, "/")
+}
+
+func (t Topic) IsValid() bool {
+	err := validateTopic(t.String())
+	return err == nil
+}
+
+func (t Topic) WildcardAt(index int) Topic {
+	t[index] = "#"
+	return t[:index]
+}
+
 func validateSubscribeMap(subs map[string]byte) ([]string, []byte, error) {
 	var topics []string
 	var qoss []byte
@@ -63,7 +90,7 @@ func validateSubscribeMap(subs map[string]byte) ([]string, []byte, error) {
 	return topics, qoss, nil
 }
 
-func validateTopicAndQos(topic string, qos byte) error {
+func validateTopic(topic string) (err error) {
 	if len(topic) == 0 {
 		return ErrInvalidTopicEmptyString
 	}
@@ -74,9 +101,19 @@ func validateTopicAndQos(topic string, qos byte) error {
 			return ErrInvalidTopicMultilevel
 		}
 	}
+	return
+}
 
+func validateQos(qos byte) (err error) {
 	if qos < 0 || qos > 2 {
 		return ErrInvalidQos
 	}
-	return nil
+	return
+}
+
+func validateTopicAndQos(topic string, qos byte) (err error) {
+	if err = validateTopic(topic); err != nil {
+		return
+	}
+	return validateQos(qos)
 }
