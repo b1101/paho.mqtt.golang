@@ -97,22 +97,20 @@ type Client struct {
 func NewClient(o *ClientOptions) (c *Client) {
 	opts := *o
 
-	switch {
-	case opts.Store == nil:
+	if opts.Store == nil {
 		opts.Store = NewMemoryStore()
-		fallthrough
-	case !opts.AutoReconnect:
-		opts.MessageChannelDepth = 0
-		fallthrough
-	default:
+	}
 
-		switch opts.ProtocolVersion {
-		case 3, 4:
-			opts.protocolVersionExplicit = true
-		default:
-			opts.ProtocolVersion = 4
-			opts.protocolVersionExplicit = false
-		}
+	if !opts.AutoReconnect {
+		opts.MessageChannelDepth = 0
+	}
+
+	switch opts.ProtocolVersion {
+	case 3, 4:
+		opts.protocolVersionExplicit = true
+	default:
+		opts.ProtocolVersion = 4
+		opts.protocolVersionExplicit = false
 	}
 
 	c = &Client{
